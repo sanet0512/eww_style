@@ -1,0 +1,13 @@
+# Archivos temporales
+*~
+*.bak
+*.swp
+
+# Archivos de caché y compilación de eww
+.eww.lock
+target/
+.cache/
+
+# Otros archivos del sistema
+.DS_Store
+Thumbs.db 

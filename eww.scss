@@ -1,0 +1,192 @@
+// eww.scss - Archivo principal de estilos (NO ELIMINAR)
+// Esta línea es importante para que EWW reconozca este archivo como el principal
+
+$bg-color: rgba(30, 30, 46, 0.7);
+$surface-color: rgba(49, 50, 68, 0.9);
+$text-color: #ffffff;
+$text-dimmed: #e0e0e0;
+$green: #a6e3a1;
+$red: #f38ba8;
+$yellow: #f9e2af;
+$peach: #fab387;
+$blue: #89b4fa;
+$mauve: #cba6f7;
+$pink: #f5c2e7;
+$radius: 10px;
+
+* {
+  all: unset;
+  font-family: "JetBrainsMono Nerd Font", sans-serif;
+}
+
+// Base
+.bar,
+.bottom-bar {
+  background-color: transparent;
+  color: $text-color;
+  font-size: 11px;
+  border-radius: $radius;
+  margin: 3px;
+  padding: 1px;
+}
+
+// Widgets
+.datetime-module {
+  background-color: rgba(49, 50, 68, 0.6);
+  padding: 1px 4px;
+  border-radius: $radius;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.time {
+  color: $mauve;
+  font-size: 12px;
+}
+
+.date {
+  color: $green;
+  font-size: 11px;
+}
+
+// Volume
+.volume-module,
+.brightness-module,
+.network-module,
+.microphone-module,
+.system-module,
+.battery-module {
+  background-color: rgba(49, 50, 68, 0.6);
+  padding: 3px 8px;
+  border-radius: $radius;
+  margin: 0 3px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.volume-icon,
+.brightness-icon,
+.wifi-icon,
+.bluetooth-icon,
+.system-icon {
+  font-size: 14px;
+  color: $blue;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.volume-slider,
+.brightness-slider {
+  background-color: #45475a;
+  border-radius: 4px;
+  min-height: 4px;
+  min-width: 100px;
+
+  trough {
+    background-color: #45475a;
+    border-radius: 4px;
+    min-height: 4px;
+    min-width: 100px;
+  }
+
+  highlight {
+    background-color: $blue;
+    border-radius: 4px;
+  }
+
+  slider {
+    background-color: $text-color;
+    border-radius: 50%;
+    min-width: 10px;
+    min-height: 10px;
+  }
+}
+
+// Workspaces
+.workspaces {
+  background-color: rgba(49, 50, 68, 0.6);
+  padding: 3px 6px;
+  border-radius: $radius;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.workspace-button {
+  font-size: 16px;
+  padding: 1px 4px;
+  border-radius: 50%;
+  color: #585b70;
+
+  &.active {
+    background-color: $mauve;
+    color: #1e1e2e;
+    font-weight: bold;
+  }
+}
+
+// System monitor
+.system-stats {
+  background-color: rgba(49, 50, 68, 0.6);
+  padding: 3px 6px;
+  border-radius: $radius;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.stat-item {
+  padding: 1px 4px;
+}
+
+.stat-value {
+  color: $pink;
+  font-weight: bold;
+  margin-left: 3px;
+}
+
+// Battery styles
+.battery-module {
+  .battery-icon {
+    font-size: 14px;
+    margin-right: 3px;
+
+    &.battery-charging {
+      color: $green;
+    }
+    &.battery-critical {
+      color: $red;
+    }
+    &.battery-low {
+      color: $peach;
+    }
+    &.battery-medium {
+      color: $yellow;
+    }
+    &.battery-high {
+      color: $green;
+    }
+  }
+
+  .battery-percentage {
+    font-size: 12px;
+    font-weight: bold;
+  }
+}
+
+// Calendar
+.calendar-window {
+  background-color: $bg-color;
+  border-radius: $radius;
+  padding: 8px;
+}
+
+.cal {
+  font-size: 14px;
+}
+
+// System menu buttons
+.system-btn {
+  background-color: #45475a;
+  color: $text-color;
+  padding: 6px;
+  border-radius: 8px;
+
+  &:hover {
+    background-color: #585b70;
+  }
+}
+

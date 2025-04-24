@@ -1,0 +1,17 @@
+;; variables.yuck - Definición de variables globales para eww
+
+;; Rutas para archivos SCSS externos
+(defvar eww_stylesheet "~/.config/eww/style.scss")
+
+; Variables adicionales para eww
+; Estas variables complementan las definidas en eww.yuck
+
+; Archivo de estilos SCSS
+(defvar eww_scss_file "~/.config/eww/eww.scss")
+
+; Alias para comandos comunes
+(defvar volume_up "pamixer -i 5")
+(defvar volume_down "pamixer -d 5")
+(defvar volume_mute "pamixer -t")
+(defvar brightness_up "brightnessctl set 5%+")
+(defvar brightness_down "brightnessctl set 5%-") 
