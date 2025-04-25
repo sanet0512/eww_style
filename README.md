@@ -3,6 +3,8 @@
 ## Descripción
 Esta configuración de EWW (ElKowar's Wacky Widgets) proporciona una interfaz de usuario personalizada para tu sistema Linux con barras transparentes y estilo minimalista. Incluye widgets para control de audio, micrófono, red, y más.
 
+> **Nota**: EWW es un proyecto creado por [ElKowar](https://github.com/elkowar). Este repositorio contiene una configuración personalizada basada en su trabajo.
+
 ## Características
 - Control de audio y micrófono
 - Widgets de red
@@ -21,7 +23,7 @@ Esta configuración de EWW (ElKowar's Wacky Widgets) proporciona una interfaz de
 ```
 
 ## Requisitos
-- EWW
+- [EWW](https://github.com/elkowar/eww) (ElKowar's Wacky Widgets)
 - WirePlumber
 - Font Awesome (para iconos)
 
@@ -44,8 +46,12 @@ Puedes encontrar capturas de pantalla de la interfaz en la carpeta `screenshots/
 - Widgets individuales
 - Estados diferentes de la interfaz
 
+## Créditos
+- [EWW](https://github.com/elkowar/eww) por [ElKowar](https://github.com/elkowar)
+- Esta configuración está basada en el trabajo original de ElKowar
+
 ## Contribución
 Las contribuciones son bienvenidas. Por favor, sigue las guías de estilo y asegúrate de probar tus cambios.
 
 ## Licencia
-MIT License 
+Este proyecto está bajo la licencia MIT. EWW está bajo la licencia GPL-3.0. 
