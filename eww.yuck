@@ -8,7 +8,7 @@
 (defpoll calendar_month :interval "10h" "date '+%m'")
 (defpoll calendar_year :interval "10h" "date '+%Y'")
 (defpoll calendar :interval "1h" "cal --color=never")
-(deflisten workspaces :initial "[]" "scripts/get-workspaces.sh")
+(deflisten workspaces :initial "[{\"id\":1,\"active\":true,\"windows\":0},{\"id\":2,\"active\":false,\"windows\":0},{\"id\":3,\"active\":false,\"windows\":0},{\"id\":4,\"active\":false,\"windows\":0},{\"id\":5,\"active\":false,\"windows\":0}]" "scripts/get-workspaces.sh")
 (deflisten wifi :initial "{\"icon\": \"󰤭\", \"ssid\": \"Desconectado\", \"signal\": \"0\", \"connected\": false}" "scripts/wifi.sh")
 (deflisten bluetooth :initial "{\"icon\": \"󰂲\", \"devices\": 0, \"powered\": false}" "scripts/bluetooth.sh")
 (deflisten volume :initial "{\"volume\": 0, \"muted\": false, \"icon\": \"󰕿\"}" "scripts/volume.sh")
@@ -125,7 +125,7 @@
 
 ; Widget de espacios de trabajo
 (defwidget workspaces []
-  (box :class "workspaces"
+  (box :class "workspaces-module"
        :orientation "h"
        :space-evenly true
        :spacing 4
@@ -134,7 +134,8 @@
       (eventbox 
         :onclick "hyprctl dispatch workspace ${workspace.id}"
         (box :class "workspace-button ${workspace.active ? 'active' : ''} ${workspace.windows > 0 ? 'occupied' : 'empty'}"
-          (label :text "•"))))))
+          (label :text "${workspace.active ? '󰮯' : workspace.windows > 0 ? '󰊠' : '󰑊'}"
+                 :class "workspace-icon"))))))
 
 ; Widget de brillo
 (defwidget brightness []

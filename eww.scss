@@ -97,22 +97,44 @@ $radius: 10px;
 }
 
 // Workspaces
-.workspaces {
+.workspaces-module {
   background-color: $surface-color;
   padding: 4px 8px;
   border-radius: $radius;
+  margin-right: 5px;
 }
 
 .workspace-button {
-  font-size: 18px;
-  padding: 3px 6px;
-  border-radius: 50%;
-  color: #585b70;
-
+  font-size: 16px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  margin: 0 2px;
+  transition: all 0.2s ease;
+  
   &.active {
     background-color: $mauve;
     color: #1e1e2e;
     font-weight: bold;
+    box-shadow: 0 0 3px rgba(203, 166, 247, 0.8);
+  }
+  
+  &.occupied:not(.active) {
+    color: $blue;
+  }
+  
+  &.empty {
+    color: #585b70;
+    opacity: 0.7;
+  }
+  
+  &:hover {
+    background-color: #45475a;
+  }
+  
+  .workspace-icon {
+    margin: 0;
+    padding: 0;
+    font-size: 14px;
   }
 }
 
