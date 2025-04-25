@@ -251,9 +251,22 @@ $radius: 10px;
   color: $text-color;
 }
 
+// Micrófono
+.microphone-icon {
+  font-size: 18px;
+  
+  &.microphone-muted {
+    color: $red;
+  }
+  
+  &:not(.microphone-muted) {
+    color: $green;
+  }
+}
+
 // Cámara
 .camera-icon {
-  font-size: 16px;
+  font-size: 18px;
   
   &.camera-on {
     color: $green;
@@ -347,9 +360,22 @@ $radius: 10px;
   }
   
   .media-controls {
-    padding: 5px;
-    background-color: rgba(69, 71, 90, 0.6);
+    padding: 8px;
+    background-color: rgba(69, 71, 90, 0.8);
     border-radius: $radius;
+    display: flex;
+    justify-content: space-around;
+    
+    .microphone-module, .camera-module {
+      background-color: transparent;
+      padding: 5px 8px;
+      margin: 0;
+      border-radius: $radius;
+      
+      &:hover {
+        background-color: rgba(69, 71, 90, 1);
+      }
+    }
   }
 }
 

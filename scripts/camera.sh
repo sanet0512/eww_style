@@ -1,14 +1,15 @@
 #!/bin/bash
 
 # Script para controlar el estado de la cámara web
-# Utiliza v4l2-ctl para activar/desactivar la cámara
+# Utiliza v4l2-ctl para detectar cámaras y rfkill para controlar su estado
 
 get_camera_info() {
     # Verificar si hay dispositivos de cámara
-    devices=$(ls /dev/video* 2>/dev/null | wc -l)
+    # Contar dispositivos de video disponibles, pero no fallar si no hay ninguno
+    devices=$(ls /dev/video* 2>/dev/null | wc -l || echo "0")
     
     # Verificar si la cámara está bloqueada (mediante rfkill)
-    if [ -n "$(rfkill list video 2>/dev/null)" ]; then
+    if rfkill list video &>/dev/null; then
         if rfkill list video | grep -q "Soft blocked: yes"; then
             status="disabled"
             icon="󰷞"
@@ -25,6 +26,7 @@ get_camera_info() {
             icon="󰄀"
             powered=true
         else
+            # No hay dispositivos de cámara
             status="no-device"
             icon="󰹑"
             powered=false
@@ -37,30 +39,38 @@ get_camera_info() {
 
 # Función para activar la cámara
 enable_camera() {
-    if [ -n "$(rfkill list video 2>/dev/null)" ]; then
-        rfkill unblock video
+    if rfkill list video &>/dev/null; then
+        rfkill unblock video 2>/dev/null
+        echo "Cámara activada"
+    else
+        echo "No se puede activar la cámara: no hay control rfkill para video"
     fi
-    echo "Cámara activada"
 }
 
 # Función para desactivar la cámara
 disable_camera() {
-    if [ -n "$(rfkill list video 2>/dev/null)" ]; then
-        rfkill block video
+    if rfkill list video &>/dev/null; then
+        rfkill block video 2>/dev/null
+        echo "Cámara desactivada"
+    else
+        echo "No se puede desactivar la cámara: no hay control rfkill para video"
     fi
-    echo "Cámara desactivada"
 }
 
 # Manejar comandos
 case "$1" in
     toggle)
-        if rfkill list video 2>/dev/null | grep -q "Soft blocked: yes"; then
-            enable_camera
+        if rfkill list video &>/dev/null; then
+            if rfkill list video | grep -q "Soft blocked: yes"; then
+                enable_camera
+            else
+                disable_camera
+            fi
+            # Retornar estado actual después del toggle
+            sleep 0.5
         else
-            disable_camera
+            echo "No hay control rfkill para cámara en este sistema"
         fi
-        # Retornar estado actual después del toggle
-        sleep 0.5
         get_camera_info
         ;;
     status)
@@ -68,9 +78,13 @@ case "$1" in
         ;;
     enable)
         enable_camera
+        sleep 0.5
+        get_camera_info
         ;;
     disable)
         disable_camera
+        sleep 0.5
+        get_camera_info
         ;;
     *)
         # Modo daemon: actualizar cada 5 segundos

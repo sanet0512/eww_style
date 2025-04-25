@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script unificado para gestionar EWW
-# Uso: ./eww-manager.sh {start|stop|reload|check}
+# Uso: ./eww-manager.sh {start|stop|reload|check|side-panel}
 
 # Colores para mensajes
 GREEN='\033[0;32m'
@@ -53,6 +53,23 @@ check_setup() {
         print_msg "❌ eww.scss no encontrado" "${RED}"
     fi
 
+    # Verificar estado de los scripts de micrófono y cámara
+    print_msg "Verificando scripts específicos..." "${YELLOW}"
+    
+    # Comprobar script de micrófono
+    if ~/.config/eww/scripts/microphone.sh status 2>/dev/null | grep -q "muted"; then
+        print_msg "✅ Script de micrófono funciona correctamente" "${GREEN}"
+    else
+        print_msg "❌ Script de micrófono no funciona correctamente" "${RED}"
+    fi
+
+    # Comprobar script de cámara
+    if ~/.config/eww/scripts/camera.sh status 2>/dev/null | grep -q "icon"; then
+        print_msg "✅ Script de cámara funciona correctamente" "${GREEN}"
+    else
+        print_msg "❌ Script de cámara no funciona correctamente" "${RED}"
+    fi
+
     print_msg "Verificación completada" "${GREEN}"
 }
 
@@ -90,6 +107,32 @@ reload_eww() {
     print_msg "Recarga completada" "${GREEN}"
 }
 
+# Función para gestionar panel lateral
+manage_side_panel() {
+    case "$1" in
+        open)
+            print_msg "Abriendo panel lateral..." "${YELLOW}"
+            eww open side-panel
+            ;;
+        close)
+            print_msg "Cerrando panel lateral..." "${YELLOW}"
+            eww close side-panel
+            ;;
+        toggle)
+            print_msg "Alternando panel lateral..." "${YELLOW}"
+            eww open --toggle side-panel
+            ;;
+        *)
+            print_msg "Estado actual del panel lateral:" "${YELLOW}"
+            if eww active-windows | grep -q "side-panel"; then
+                print_msg "Panel lateral: ABIERTO" "${GREEN}"
+            else
+                print_msg "Panel lateral: CERRADO" "${RED}"
+            fi
+            ;;
+    esac
+}
+
 # Procesar argumentos
 case "$1" in
     start)
@@ -106,12 +149,16 @@ case "$1" in
     check)
         check_setup
         ;;
+    side-panel)
+        manage_side_panel "$2"
+        ;;
     *)
-        print_msg "Uso: $0 {start|stop|reload|check}" "${YELLOW}"
-        print_msg "  start  - Iniciar EWW" "${YELLOW}"
-        print_msg "  stop   - Detener EWW" "${YELLOW}"
-        print_msg "  reload - Recargar EWW" "${YELLOW}"
-        print_msg "  check  - Verificar configuración" "${YELLOW}"
+        print_msg "Uso: $0 {start|stop|reload|check|side-panel}" "${YELLOW}"
+        print_msg "  start      - Iniciar EWW" "${YELLOW}"
+        print_msg "  stop       - Detener EWW" "${YELLOW}"
+        print_msg "  reload     - Recargar EWW" "${YELLOW}"
+        print_msg "  check      - Verificar configuración" "${YELLOW}"
+        print_msg "  side-panel - Gestionar panel lateral [open|close|toggle]" "${YELLOW}"
         exit 1
         ;;
 esac 
