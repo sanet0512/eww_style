@@ -54,4 +54,10 @@ Puedes encontrar capturas de pantalla de la interfaz en la carpeta `screenshots/
 Las contribuciones son bienvenidas. Por favor, sigue las guías de estilo y asegúrate de probar tus cambios.
 
 ## Licencia
-Este proyecto está bajo la licencia MIT. EWW está bajo la licencia GPL-3.0. 
+Este proyecto está bajo la licencia GPL-3.0, al igual que EWW. Esto significa que:
+- Cualquiera puede usar, modificar y distribuir este código
+- Cualquier trabajo derivado debe mantener la misma licencia
+- Se debe dar crédito al autor original
+- Se debe incluir una copia de la licencia con cualquier distribución
+
+Para más detalles, consulta el archivo [LICENSE](LICENSE). 
