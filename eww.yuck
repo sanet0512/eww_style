@@ -10,11 +10,14 @@
 (defpoll calendar :interval "1h" "cal --color=never")
 (deflisten workspaces :initial "[{\"id\":1,\"active\":true,\"windows\":0},{\"id\":2,\"active\":false,\"windows\":0},{\"id\":3,\"active\":false,\"windows\":0},{\"id\":4,\"active\":false,\"windows\":0},{\"id\":5,\"active\":false,\"windows\":0}]" "scripts/get-workspaces.sh")
 (deflisten wifi :initial "{\"icon\": \"󰤭\", \"ssid\": \"Desconectado\", \"signal\": \"0\", \"connected\": false}" "scripts/wifi.sh")
-(deflisten bluetooth :initial "{\"icon\": \"󰂲\", \"devices\": 0, \"powered\": false}" "scripts/bluetooth.sh")
+(deflisten bluetooth :initial "{\"icon\": \"󰂲\", \"devices\": 0, \"powered\": false, \"status\": \"Apagado\"}" "scripts/bluetooth.sh")
 (deflisten volume :initial "{\"volume\": 0, \"muted\": false, \"icon\": \"󰕿\"}" "scripts/volume.sh")
 (deflisten microphone :initial "{\"muted\": false}" "scripts/microphone.sh")
+(deflisten camera :initial "{\"icon\": \"󰹑\", \"status\": \"disabled\", \"powered\": false, \"devices\": 0}" "scripts/camera.sh")
 (defvar volume_reveal false)
 (defvar network_reveal false)
+(defvar wifi_reveal false)
+(defvar bluetooth_reveal false)
 (defvar system_reveal false)
 (deflisten brightness :initial "{\"brightness\": 0}" "scripts/brightness.sh")
 (defvar brightness_reveal false)
@@ -63,35 +66,55 @@
                :min 0
                :onchange "pamixer --set-volume {}")))))
 
-; Widget de red
-(defwidget network []
-  (eventbox :onhover "${EWW_CMD} update network_reveal=true"
-            :onhoverlost "${EWW_CMD} update network_reveal=false"
-    (box :class "network-module"
+; Widget de WiFi independiente
+(defwidget wifi-widget []
+  (eventbox :onhover "${EWW_CMD} update wifi_reveal=true"
+            :onhoverlost "${EWW_CMD} update wifi_reveal=false"
+    (box :class "wifi-module"
          :space-evenly false
          :spacing 8
-      (box :class "network-icons"
-        (label :class "wifi-icon" :text {wifi.icon})
-        (label :class "bluetooth-icon" :text {bluetooth.icon}))
+      (button :onclick "scripts/wifi.sh toggle"
+              :tooltip "${wifi.connected ? 'Desactivar WiFi' : 'Activar WiFi'}"
+              :class "wifi-icon ${wifi.connected ? 'wifi-connected' : 'wifi-disconnected'}"
+        (label :text {wifi.icon}))
       (revealer :transition "slideright"
-                :reveal network_reveal
+                :reveal wifi_reveal
                 :duration "350ms"
-        (box :class "network-details"
-             :orientation "v"
-             :spacing 10
-          (box :class "wifi-box"
-               :space-evenly false
-               :spacing 5
-            (label :class "network-label" :text {wifi.ssid}))
-          (box :class "bluetooth-box"
-               :space-evenly false
-               :spacing 5
-            (label :class "network-label" 
-                   :text "${bluetooth.powered ? 
-                          (bluetooth.devices > 0 ? 
-                           '${bluetooth.devices} dispositivos' : 
-                           'Sin dispositivos') : 
-                          'Apagado'}")))))))
+        (box :class "wifi-details"
+             :space-evenly false
+             :spacing 5
+          (label :class "wifi-label" 
+                 :limit-width 20
+                 :text {wifi.ssid}))))))
+
+; Widget de Bluetooth independiente
+(defwidget bluetooth-widget []
+  (eventbox :onhover "${EWW_CMD} update bluetooth_reveal=true"
+            :onhoverlost "${EWW_CMD} update bluetooth_reveal=false"
+    (box :class "bluetooth-module"
+         :space-evenly false
+         :spacing 8
+      (button :onclick "scripts/bluetooth.sh toggle"
+              :tooltip "${bluetooth.powered ? 'Desactivar Bluetooth' : 'Activar Bluetooth'}"
+              :class "bluetooth-icon ${bluetooth.powered ? 'bluetooth-on' : 'bluetooth-off'}"
+        (label :text {bluetooth.icon}))
+      (revealer :transition "slideright"
+                :reveal bluetooth_reveal
+                :duration "350ms"
+        (box :class "bluetooth-details"
+             :space-evenly false
+             :spacing 5
+          (label :class "bluetooth-label" 
+                 :limit-width 25
+                 :text "${bluetooth.powered ? 
+                        (bluetooth.devices > 0 ? 
+                         '${bluetooth.devices} dispositivos' : 
+                         'Sin dispositivos') : 
+                        'Apagado'}")
+          (label :class "bluetooth-status"
+                 :visible {bluetooth.devices > 0}
+                 :limit-width 25
+                 :text {bluetooth.status}))))))
 
 ; Widget del sistema
 (defwidget system []
@@ -173,8 +196,18 @@
        :spacing 2
     (button :class "microphone-icon ${microphone.muted ? 'microphone-muted' : ''}" 
             :onclick "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"
-            :text "${microphone.muted ? '󰍭' : '󰍬'}"
-            :tooltip "${microphone.muted ? 'Micrófono silenciado' : 'Micrófono activo'}")))
+            :tooltip "${microphone.muted ? 'Micrófono silenciado' : 'Micrófono activo'}"
+            :text "${microphone.muted ? '󰍭' : '󰍬'}")))
+
+; Widget de cámara
+(defwidget camera-module []
+  (box :class "camera-module"
+       :orientation "h"
+       :spacing 2
+    (button :class "camera-icon ${camera.powered ? 'camera-on' : 'camera-off'}" 
+            :onclick "scripts/camera.sh toggle"
+            :tooltip "${camera.powered ? 'Desactivar cámara' : 'Activar cámara'}"
+            :text {camera.icon})))
 
 ; Widget principal de la barra
 (defwidget bar []
@@ -190,10 +223,12 @@
          :class "end-box"
          :space-evenly false
          :spacing 8
-      (network)
-      (brightness)
-      (volume)
-      (microphone-module)
+      (wifi-widget)
+      (bluetooth-widget)
+      (button :onclick "${EWW_CMD} open --toggle side-panel"
+              :class "side-panel-toggle"
+              :tooltip "Abrir/cerrar panel lateral"
+        "󰃉")
       (system))))
 
 ; Ventana del calendario
@@ -255,55 +290,21 @@
                 :max {music.duration}
                 :orientation "h"))))
 
-; Widget de información del sistema
-(defwidget system-monitor []
-  (box :class "system-monitor"
+; Widget de control del panel lateral
+(defwidget side-panel-controls []
+  (box :class "side-panel-controls"
        :orientation "v"
-       :spacing 10
-    (box :class "cpu-info"
-         :orientation "v"
-         :spacing 5
-      (box :class "info-header"
-           :space-evenly false
-           :spacing 5
-        (label :text "󰍛 CPU")
-        (label :class "info-value" 
-               :text "${system_info.cpu.usage}% • ${system_info.cpu.temperature}°C"))
-      (progress :value {system_info.cpu.usage}
-                :class "cpu-bar"))
-    (box :class "memory-info"
-         :orientation "v"
-         :spacing 5
-      (box :class "info-header"
-           :space-evenly false
-           :spacing 5
-        (label :text "󰍛 RAM")
-        (label :class "info-value" 
-               :text "${system_info.memory.percentage}% • ${system_info.memory.used}M / ${system_info.memory.total}M"))
-      (progress :value {system_info.memory.percentage}
-                :class "memory-bar"))
-    (box :class "gpu-info"
-         :orientation "v"
-         :spacing 5
-      (box :class "info-header"
-           :space-evenly false
-           :spacing 5
-        (label :text "󰍛 GPU")
-        (label :class "info-value" 
-               :text "${system_info.gpu.usage}%"))
-      (progress :value {system_info.gpu.usage}
-                :class "gpu-bar"))
-    (box :class "disk-info"
-         :orientation "v"
-         :spacing 5
-      (box :class "info-header"
-           :space-evenly false
-           :spacing 5
-        (label :text "󰋊 Disco")
-        (label :class "info-value" 
-               :text "${system_info.disk.percentage}% • ${system_info.disk.used} / ${system_info.disk.total}"))
-      (progress :value {system_info.disk.percentage}
-                :class "disk-bar"))))
+       :spacing 15
+    (box :class "control-row"
+         :space-evenly false
+         :spacing 10
+      (volume)
+      (box :class "media-controls"
+           :space-evenly true
+           :spacing 8
+        (microphone-module)
+        (camera-module)))
+    (brightness)))
 
 ; Widget lateral principal
 (defwidget side-panel []
@@ -311,7 +312,7 @@
        :orientation "v"
        :spacing 20
     (music-player)
-    (system-monitor)))
+    (side-panel-controls)))
 
 ; Ventana del panel lateral
 (defwindow side-panel

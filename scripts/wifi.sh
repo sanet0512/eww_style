@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script mejorado para WiFi con funcionalidad real
+# Script para WiFi con funcionalidad real
 
 # Verificar si se pasa un argumento para realizar una acción
 if [[ $1 = "toggle" ]]; then
@@ -13,72 +13,39 @@ if [[ $1 = "toggle" ]]; then
         rfkill block wifi
     fi
     sleep 1  # Esperar a que se aplique el cambio
+    # Reportar el nuevo estado después del toggle
+    if rfkill list wifi | grep -q "Soft blocked: no"; then
+        echo "{\"icon\": \"󰤨\", \"ssid\": \"Activando...\", \"signal\": \"0\", \"connected\": false}"
+    else
+        echo "{\"icon\": \"󰤮\", \"ssid\": \"WiFi apagado\", \"signal\": \"0\", \"connected\": false}"
+    fi
+    exit 0
 fi
 
-# Obtener información del WiFi
-# Verificar si el WiFi está habilitado
-if rfkill list wifi 2>/dev/null | grep -q "Soft blocked: no"; then
-    # Obtener SSID de la red conectada
-    ssid=$(iwconfig 2>/dev/null | grep -oP 'ESSID:"\K[^"]*' | head -1)
-    
-    # Obtener la fuerza de la señal
-    signal_strength=$(iwconfig 2>/dev/null | grep -oP 'Signal level=\K[-0-9]*' | head -1)
-    
-    # Si no hay SSID pero el wifi está encendido
-    if [ -z "$ssid" ]; then
-        connected=false
-        ssid="Sin conexión"
-        signal=0
-    else
-        connected=true
-        
-        # Convertir la señal a porcentaje (normalmente están en dBm, de -100 a 0)
-        if [ -n "$signal_strength" ]; then
-            # Convertir de dBm a porcentaje (aproximado)
-            signal=$(( (100 + $signal_strength) * 2 ))
-            # Asegurar que esté en el rango 0-100
-            if [ $signal -gt 100 ]; then
-                signal=100
-            elif [ $signal -lt 0 ]; then
+# Función para obtener y mostrar la información del WiFi
+get_wifi_info() {
+    # Verificar si el WiFi está habilitado
+    if rfkill list wifi 2>/dev/null | grep -q "Soft blocked: no"; then
+        # Obtener SSID de la red conectada utilizando NetworkManager
+        if command -v nmcli &> /dev/null; then
+            # Usar nmcli si está disponible (más preciso)
+            connection_info=$(nmcli -t -f DEVICE,STATE,CONNECTION device | grep -E '^wlan[0-9]:connected:')
+            if [ -n "$connection_info" ]; then
+                connected=true
+                ssid=$(echo "$connection_info" | cut -d: -f3)
+                
+                # Obtener calidad de señal en porcentaje con nmcli
+                signal=$(nmcli -t -f IN-USE,SIGNAL device wifi | grep "^\*" | cut -d: -f2)
+                if [ -z "$signal" ]; then
+                    signal=0
+                fi
+            else
+                connected=false
+                ssid="Sin conexión"
                 signal=0
             fi
         else
-            signal=100  # Valor por defecto si no podemos obtener la señal
-        fi
-    fi
-else
-    connected=false
-    ssid="WiFi apagado"
-    signal=0
-fi
-
-# Determinar el icono según el estado
-if [ "$connected" = true ]; then
-    if [ $signal -ge 80 ]; then
-        icon="󰤨"
-    elif [ $signal -ge 60 ]; then
-        icon="󰤥"
-    elif [ $signal -ge 40 ]; then
-        icon="󰤢"
-    elif [ $signal -ge 20 ]; then
-        icon="󰤟"
-    else
-        icon="󰤯"
-    fi
-else
-    icon="󰤮"
-fi
-
-# Construir respuesta JSON
-echo "{\"icon\": \"$icon\", \"ssid\": \"$ssid\", \"signal\": \"$signal\", \"connected\": $connected}"
-
-# Si no se pasó un argumento, seguir monitoreando cambios para actualizaciones en tiempo real
-if [[ $1 != "toggle" ]]; then
-    while true; do
-        sleep 5
-        
-        # Repetir el proceso de verificación
-        if rfkill list wifi 2>/dev/null | grep -q "Soft blocked: no"; then
+            # Alternativa usando iwconfig si nmcli no está disponible
             ssid=$(iwconfig 2>/dev/null | grep -oP 'ESSID:"\K[^"]*' | head -1)
             signal_strength=$(iwconfig 2>/dev/null | grep -oP 'Signal level=\K[-0-9]*' | head -1)
             
@@ -89,8 +56,10 @@ if [[ $1 != "toggle" ]]; then
             else
                 connected=true
                 
+                # Convertir la señal a porcentaje (de dBm)
                 if [ -n "$signal_strength" ]; then
                     signal=$(( (100 + $signal_strength) * 2 ))
+                    # Asegurar que esté en el rango 0-100
                     if [ $signal -gt 100 ]; then
                         signal=100
                     elif [ $signal -lt 0 ]; then
@@ -100,28 +69,39 @@ if [[ $1 != "toggle" ]]; then
                     signal=100
                 fi
             fi
-        else
-            connected=false
-            ssid="WiFi apagado"
-            signal=0
         fi
-        
-        if [ "$connected" = true ]; then
-            if [ $signal -ge 80 ]; then
-                icon="󰤨"
-            elif [ $signal -ge 60 ]; then
-                icon="󰤥"
-            elif [ $signal -ge 40 ]; then
-                icon="󰤢"
-            elif [ $signal -ge 20 ]; then
-                icon="󰤟"
-            else
-                icon="󰤯"
-            fi
+    else
+        connected=false
+        ssid="WiFi apagado"
+        signal=0
+    fi
+
+    # Determinar el icono según el estado y la intensidad de la señal
+    if [ "$connected" = true ]; then
+        if [ $signal -ge 80 ]; then
+            icon="󰤨"  # Señal excelente
+        elif [ $signal -ge 60 ]; then
+            icon="󰤥"  # Señal buena
+        elif [ $signal -ge 40 ]; then
+            icon="󰤢"  # Señal media
+        elif [ $signal -ge 20 ]; then
+            icon="󰤟"  # Señal baja
         else
-            icon="󰤮"
+            icon="󰤯"  # Señal muy baja
         fi
-        
-        echo "{\"icon\": \"$icon\", \"ssid\": \"$ssid\", \"signal\": \"$signal\", \"connected\": $connected}"
-    done
-fi
+    else
+        icon="󰤮"  # WiFi apagado o desconectado
+    fi
+
+    # Devolver información como JSON
+    echo "{\"icon\": \"$icon\", \"ssid\": \"$ssid\", \"signal\": \"$signal\", \"connected\": $connected}"
+}
+
+# Mostrar la información inicial
+get_wifi_info
+
+# Monitorear cambios y actualizar cada 5 segundos
+while true; do
+    sleep 5
+    get_wifi_info
+done

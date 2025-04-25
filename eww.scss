@@ -50,8 +50,10 @@ $radius: 10px;
 // Volume
 .volume-module,
 .brightness-module,
-.network-module,
+.wifi-module,
+.bluetooth-module,
 .microphone-module,
+.camera-module,
 .system-module,
 .battery-module {
   background-color: $surface-color;
@@ -62,11 +64,47 @@ $radius: 10px;
 
 .volume-icon,
 .brightness-icon,
-.wifi-icon,
-.bluetooth-icon,
 .system-icon {
   font-size: 16px;
   color: $blue;
+}
+
+// WiFi
+.wifi-icon {
+  font-size: 16px;
+  
+  &.wifi-connected {
+    color: $green;
+  }
+  
+  &.wifi-disconnected {
+    color: $peach;
+  }
+}
+
+// Bluetooth
+.bluetooth-icon {
+  font-size: 16px;
+  
+  &.bluetooth-on {
+    color: $blue;
+  }
+  
+  &.bluetooth-off {
+    color: $peach;
+  }
+}
+
+.wifi-label,
+.bluetooth-label,
+.bluetooth-status {
+  font-size: 11px;
+  color: $text-color;
+}
+
+.wifi-details,
+.bluetooth-details {
+  margin-left: 4px;
 }
 
 .volume-slider,
@@ -211,5 +249,107 @@ $radius: 10px;
 .network-label {
   font-size: 11px;
   color: $text-color;
+}
+
+// Cámara
+.camera-icon {
+  font-size: 16px;
+  
+  &.camera-on {
+    color: $green;
+  }
+  
+  &.camera-off {
+    color: $peach;
+  }
+}
+
+// Botón del panel lateral
+.side-panel-toggle {
+  font-size: 16px;
+  color: $mauve;
+  padding: 5px 10px;
+  background-color: $surface-color;
+  border-radius: $radius;
+  margin: 0 4px;
+  
+  &:hover {
+    background-color: #45475a;
+  }
+}
+
+// Panel lateral
+.side-panel {
+  background-color: $bg-color;
+  padding: 15px;
+  border-radius: $radius;
+}
+
+.music-player {
+  background-color: $surface-color;
+  padding: 10px;
+  border-radius: $radius;
+  margin-bottom: 10px;
+  
+  .music-title {
+    font-size: 14px;
+    font-weight: bold;
+    color: $green;
+  }
+  
+  .music-artist {
+    font-size: 12px;
+    color: $mauve;
+  }
+  
+  .music-controls {
+    margin: 10px 0;
+  }
+  
+  .music-btn {
+    font-size: 18px;
+    color: $blue;
+    
+    &:hover {
+      color: $pink;
+    }
+  }
+  
+  .music-progress-container {
+    margin-top: 5px;
+  }
+  
+  .music-progress {
+    background-color: #45475a;
+    border-radius: 4px;
+    min-height: 4px;
+    
+    trough {
+      background-color: #45475a;
+      border-radius: 4px;
+      min-height: 4px;
+    }
+    
+    highlight {
+      background-color: $blue;
+      border-radius: 4px;
+    }
+  }
+}
+
+.side-panel-controls {
+  background-color: $surface-color;
+  padding: 10px;
+  border-radius: $radius;
+  
+  .control-row {
+    margin-bottom: 5px;
+  }
+  
+  .media-controls {
+    padding: 5px;
+    background-color: rgba(69, 71, 90, 0.6);
+    border-radius: $radius;
+  }
 }
 

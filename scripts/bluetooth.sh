@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script mejorado para Bluetooth con funcionalidad real
+# Script para Bluetooth con funcionalidad real
 
 # Verificar si se pasa un argumento para realizar una acción
 if [[ $1 = "toggle" ]]; then
@@ -12,57 +12,79 @@ if [[ $1 = "toggle" ]]; then
         bluetoothctl power on
     fi
     sleep 1  # Esperar a que se aplique el cambio
-fi
-
-# Verificar si el servicio bluetooth está activo y encendido
-if systemctl is-active --quiet bluetooth && bluetoothctl show | grep -q "Powered: yes"; then
-    powered=true
-    
-    # Obtener dispositivos conectados
-    connected_devices=$(bluetoothctl devices Connected | wc -l)
-else
-    powered=false
-    connected_devices=0
-fi
-
-# Determinar el icono según el estado
-if [ "$powered" = true ]; then
-    if [ $connected_devices -gt 0 ]; then
-        icon="󰂱"  # Bluetooth conectado a dispositivos
+    # Reportar el nuevo estado después del toggle
+    if bluetoothctl show | grep -q "Powered: yes"; then
+        echo "{\"icon\": \"󰂯\", \"devices\": 0, \"powered\": true}"
     else
-        icon="󰂯"  # Bluetooth encendido pero sin conexiones
+        echo "{\"icon\": \"󰂲\", \"devices\": 0, \"powered\": false}"
     fi
-else
-    icon="󰂲"  # Bluetooth apagado
+    exit 0
 fi
 
-# Construir respuesta JSON
-echo "{\"icon\": \"$icon\", \"devices\": $connected_devices, \"powered\": $powered}"
-
-# Si no se pasó un argumento, seguir monitoreando cambios para actualizaciones en tiempo real
-if [[ $1 != "toggle" ]]; then
-    while true; do
-        sleep 5
+# Función para obtener y mostrar la información del Bluetooth
+get_bluetooth_info() {
+    # Verificar si el servicio bluetooth está activo
+    if ! systemctl is-active --quiet bluetooth; then
+        echo "{\"icon\": \"󰂲\", \"devices\": 0, \"powered\": false, \"status\": \"Servicio inactivo\"}"
+        return
+    fi
+    
+    # Verificar si el bluetooth está encendido
+    if bluetoothctl show | grep -q "Powered: yes"; then
+        powered=true
         
-        # Repetir el proceso de verificación
-        if systemctl is-active --quiet bluetooth && bluetoothctl show | grep -q "Powered: yes"; then
-            powered=true
-            connected_devices=$(bluetoothctl devices Connected | wc -l)
-        else
-            powered=false
-            connected_devices=0
-        fi
+        # Contar dispositivos conectados
+        connected_devices=$(bluetoothctl devices Connected | wc -l)
         
-        if [ "$powered" = true ]; then
-            if [ $connected_devices -gt 0 ]; then
-                icon="󰂱"  # Bluetooth conectado a dispositivos
-            else
-                icon="󰂯"  # Bluetooth encendido pero sin conexiones
+        # Nombres de dispositivos conectados (limitar a 2 para la visualización)
+        if [ $connected_devices -gt 0 ]; then
+            device_names=""
+            count=0
+            while IFS= read -r line && [ $count -lt 2 ]; do
+                # Extraer el nombre del dispositivo
+                device_name=$(echo "$line" | sed 's/^Device [^ ]* //g')
+                if [ -n "$device_names" ]; then
+                    device_names="$device_names, "
+                fi
+                device_names="$device_names$device_name"
+                count=$((count + 1))
+            done < <(bluetoothctl devices Connected | sed 's/^Device [^ ]* //g')
+            
+            # Agregar indicación si hay más dispositivos
+            if [ $connected_devices -gt 2 ]; then
+                device_names="$device_names y $(($connected_devices - 2)) más"
             fi
+            
+            status="$device_names"
         else
-            icon="󰂲"  # Bluetooth apagado
+            status="Sin dispositivos"
         fi
-        
-        echo "{\"icon\": \"$icon\", \"devices\": $connected_devices, \"powered\": $powered}"
-    done
-fi
+    else
+        powered=false
+        connected_devices=0
+        status="Apagado"
+    fi
+
+    # Determinar el icono según el estado
+    if [ "$powered" = true ]; then
+        if [ $connected_devices -gt 0 ]; then
+            icon="󰂱"  # Bluetooth conectado a dispositivos
+        else
+            icon="󰂯"  # Bluetooth encendido pero sin conexiones
+        fi
+    else
+        icon="󰂲"  # Bluetooth apagado
+    fi
+
+    # Devolver información como JSON
+    echo "{\"icon\": \"$icon\", \"devices\": $connected_devices, \"powered\": $powered, \"status\": \"$status\"}"
+}
+
+# Mostrar la información inicial
+get_bluetooth_info
+
+# Monitorear cambios y actualizar cada 5 segundos
+while true; do
+    sleep 5
+    get_bluetooth_info
+done

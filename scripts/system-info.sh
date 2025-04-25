@@ -17,7 +17,14 @@ get_temperature() {
 }
 
 get_disk_usage() {
-    df -h / | tail -1 | awk '{printf "{\"total\": \"%s\", \"used\": \"%s\", \"free\": \"%s\", \"percentage\": %d}", $2, $3, $4, $5}'
+    # Obtener información del disco y extraer el porcentaje sin el símbolo '%'
+    disk_info=$(df -h / | awk 'NR==2 {print $2,$3,$4,$5}')
+    total=$(echo $disk_info | awk '{print $1}')
+    used=$(echo $disk_info | awk '{print $2}')
+    free=$(echo $disk_info | awk '{print $3}')
+    percent=$(echo $disk_info | awk '{print $4}' | sed 's/%//')
+    
+    echo "{\"total\": \"$total\", \"used\": \"$used\", \"free\": \"$free\", \"percentage\": $percent}"
 }
 
 # Obtener valores y asegurarse de que son números válidos

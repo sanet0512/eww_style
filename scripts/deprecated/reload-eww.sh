@@ -18,4 +18,4 @@ echo "Abriendo ventanas..."
 eww open bar
 eww open bottom-bar
 
-echo "Recarga completada."
+echo "Recarga completada." 
