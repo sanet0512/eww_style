@@ -1,13 +1,44 @@
 # Archivos temporales
-*~
 *.bak
+*.tmp
 *.swp
+*~
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de caché
+.cache/
+__pycache__/
+
+# Archivos de configuración local
+local-config.yuck
+local-variables.yuck
+*.local
+config.local
+secrets.*
+
+# Archivos de log
+*.log
+
+# Archivos de respaldo
+*.backup
+*.old
 
 # Archivos de caché y compilación de eww
 .eww.lock
 target/
-.cache/
 
-# Otros archivos del sistema
-.DS_Store
-Thumbs.db 
+# Archivos de entorno
+.env
+.env.*
+
+# Archivos de sesión
+*.session
+*.session.*
+
+# Archivos de credenciales
+credentials.*
+*.key
+*.pem 
