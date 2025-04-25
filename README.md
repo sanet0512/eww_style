@@ -5,6 +5,9 @@ Esta configuración de EWW (ElKowar's Wacky Widgets) proporciona una interfaz de
 
 > **Nota**: EWW es un proyecto creado por [ElKowar](https://github.com/elkowar). Este repositorio contiene una configuración personalizada basada en su trabajo.
 
+## Vista Previa
+![Vista principal](screenshots/main-example.png)
+
 ## Características
 - Control de audio y micrófono
 - Widgets de red
@@ -41,10 +44,7 @@ Los widgets principales incluyen:
 - Información del sistema
 
 ## Capturas de Pantalla
-Puedes encontrar capturas de pantalla de la interfaz en la carpeta `screenshots/`. Estas imágenes muestran:
-- La barra principal con transparencias
-- Widgets individuales
-- Estados diferentes de la interfaz
+![Vista principal](screenshots/main-example.png)
 
 ## Créditos
 - [EWW](https://github.com/elkowar/eww) por [ElKowar](https://github.com/elkowar)
