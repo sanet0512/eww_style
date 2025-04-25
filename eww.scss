@@ -22,7 +22,7 @@ $radius: 10px;
 // Base
 .bar,
 .bottom-bar {
-  background-color: $bg-color;
+  background-color: rgba(30, 30, 46, 0.9);
   color: $text-color;
   font-size: 12px;
   border-radius: $radius;
@@ -205,5 +205,11 @@ $radius: 10px;
   &:hover {
     background-color: #585b70;
   }
+}
+
+// Clase para labels de network
+.network-label {
+  font-size: 11px;
+  color: $text-color;
 }
 
